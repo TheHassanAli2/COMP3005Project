@@ -1,35 +1,17 @@
 import psycopg2
 
-#Prompts the user for information which is necessary to connect to the postgres database
-db = input("Login to the students database manager!\nWhat is the database name?")
-host = input("What is the host name?")
-user = input("What is the user name?")
-pword = input("What is the password?")
-port = input("What is the port?")
-
-conn = psycopg2.connect(database=db,
-                        host=host,
-                        user=user,
-                        password=pword,
-                        port=port)
+conn = psycopg2.connect(database="3005",
+                        host="localhost",
+                        user="postgres",
+                        password="postgres",
+                        port="5432")
 
 cursor = conn.cursor()
 
-#Create table
-cursor.execute('''
-    drop table if exists students;;
-''')
-
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS students (
-        student_id SERIAL PRIMARY KEY,
-        first_name TEXT NOT NULL,
-        last_name TEXT NOT NULL,
-        email TEXT NOT NULL UNIQUE,
-        enrollment_date DATE
-    );
-''')
-
+#Create database
+with conn.cursor() as cursor:
+    with open("DDL.sql", "r") as sql_file:
+        cursor.execute(sql_file.read())
 conn.commit()
 
 #Insert starting data
