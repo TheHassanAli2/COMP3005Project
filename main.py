@@ -54,19 +54,24 @@ def updateMemberInfo(id):
                     ''')
 
 def updateFitnessGoals(id):
-    cursor.execute(f'''select * from fitnessgoal where member_id='{id}';''')
+    cursor.execute(f'''select * from fitnessgoal where member_id='{id}' and status = 'incomplete';''')
     results = cursor.fetchall()
     print("Current fitness goal:\n")
-    print(results)
+    print(results[0])
+    choice = -1
+
+    print("Completed fitness goal!")
+
     print("\n\nUpdating fitness goal:\n")
-    targetwt = input("What is your target weight? ")
-    deadline = input("When do you want to have completed your goal? ")
-    description = input("What are the other parts of your goals for this time? ")
-    phonenum = input("What is your phone number (xxx-xxx-xxxx)? ")
-    dob = input("What is your date of birth (yyyy-mm-dd)? ")
-    cursor.execute(f''' UPDATE member
-                    SET email = '{email}', password = '{password}', name = '{fullname}', phone = '{phonenum}', date_of_birth = '{dob}'
-                    WHERE member_id = {id};
+    targetwt = input("What is your new target weight? ")
+    deadline = input("When do you want to have completed your new goal? ")
+    description = input("What are the other parts of your goals for this deadline? ")
+    cursor.execute(f''' UPDATE fitnessgoal
+                    SET status = 'complete'
+                    WHERE member_id = {id} and status = 'incomplete';
+                    ''')
+    cursor.execute(f''' INSERT INTO FitnessGoal (member_id, target_weight, target_time, other_goals, status) VALUES
+                    ({id}, {targetwt}, '{deadline}', '{description}', 'incomplete');
                     ''')
 
 
@@ -103,7 +108,7 @@ def memberMenu(name, id):
     choice = "-1"
     while(choice != "0"):
         print()
-        choice = input(f"Welcome to the member menu!\nPress 1 to Update personal information\nPress 2 to add fitness goals\nPress 3 to change health metrics\n ")
+        choice = input(f"Welcome to the member menu!\nPress 1 to Update personal information\nPress 2 to complete and add a new fitness goal\nPress 3 to change health metrics\n ")
         print()
         if choice == "1":
             updateMemberInfo(id)

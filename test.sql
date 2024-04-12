@@ -1,1 +1,1 @@
-select * from fitnessgoal where member_id=1;
+select * from fitnessgoal where member_id=1 and status = 'incomplete';
