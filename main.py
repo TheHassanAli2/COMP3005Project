@@ -14,12 +14,61 @@ with conn.cursor() as cursor:
         cursor.execute(sql_file.read())
 conn.commit()
 
-#Insert starting data
-cursor.execute(''' INSERT INTO students (first_name, last_name, email, enrollment_date) VALUES
-('John', 'Doe', 'john.doe@example.com', '2023-09-01'),
-('Jane', 'Smith', 'jane.smith@example.com', '2023-09-01'),
-('Jim', 'Beam', 'jim.beam@example.com', '2023-09-02'); ''')
+cursor = conn.cursor()
+
+#Insert data
+with conn.cursor() as cursor:
+    with open("DML.sql", "r") as sql_file:
+        cursor.execute(sql_file.read())
 conn.commit()
+
+cursor = conn.cursor()
+
+def registerMember(email, password, fullname, phonenum, dob):
+    cursor.execute(f''' INSERT INTO Member (email, password, name, phone, date_of_birth) VALUES
+    ('{email}', '{password}', '{fullname}', '{phonenum}', '{dob}'); ''')
+    conn.commit()
+
+def loginMember(email, password):
+    cursor.execute(f''' select * from member where email='{email}' and password = '{password}';''')
+    results = cursor.fetchall()
+    if(len(results) == 1):
+        print(f"Signed into {results[0][3]}\n\n")
+        memberMenu(results[0][3], results[0][0])
+    return False
+
+def updateMemberInfo(id):
+    cursor.execute(f''' select * from member where member_id='{id}';''')
+    results = cursor.fetchall()
+    print("Current profile:\n")
+    print(results)
+    print("\n\nUpdating info:\n")
+    fullname = input("What is your fullname? ")
+    email = input("What is your email? ")
+    password = input("What is your password? ")
+    phonenum = input("What is your phone number (xxx-xxx-xxxx)? ")
+    dob = input("What is your date of birth (yyyy-mm-dd)? ")
+    cursor.execute(f''' UPDATE member
+                    SET email = '{email}', password = '{password}', name = '{fullname}', phone = '{phonenum}', date_of_birth = '{dob}'
+                    WHERE member_id = {id};
+                    ''')
+
+def updateFitnessGoals(id):
+    cursor.execute(f'''select * from fitnessgoal where member_id='{id}';''')
+    results = cursor.fetchall()
+    print("Current fitness goal:\n")
+    print(results)
+    print("\n\nUpdating fitness goal:\n")
+    targetwt = input("What is your target weight? ")
+    deadline = input("When do you want to have completed your goal? ")
+    description = input("What are the other parts of your goals for this time? ")
+    phonenum = input("What is your phone number (xxx-xxx-xxxx)? ")
+    dob = input("What is your date of birth (yyyy-mm-dd)? ")
+    cursor.execute(f''' UPDATE member
+                    SET email = '{email}', password = '{password}', name = '{fullname}', phone = '{phonenum}', date_of_birth = '{dob}'
+                    WHERE member_id = {id};
+                    ''')
+
 
 #Returns all of the students in the students table
 def getAllStudents():
@@ -50,20 +99,39 @@ def deleteStudent(student_id):
     ''')
     conn.commit()
 
+def memberMenu(name, id):
+    choice = "-1"
+    while(choice != "0"):
+        print()
+        choice = input(f"Welcome to the member menu!\nPress 1 to Update personal information\nPress 2 to add fitness goals\nPress 3 to change health metrics\n ")
+        print()
+        if choice == "1":
+            updateMemberInfo(id)
+        
+
+
+
 #Menu Loop
 choice = "-1"
 while(choice != "0"):
     print()
-    choice = input("Welcome to the students database manager\nPress 1 to get all students \nPress 2 to add a student\nPress 3 to update a student's email\nPress 4 to delete a student\nPress 0 to exit: ")
+    choice = input("Welcome to the Fitness tracker app!\nPress 1 to register as a member\nPress 2 to sign in as a member\nPress 3 to sign in as a Trainer\nPress 4 to sign in as an Admin\nPress 0 to exit: ")
     print()
     if choice == "1":
-        getAllStudents()
+        fullname = input("What is your fullname? ")
+        email = input("What is your email? ")
+        password = input("What is your password? ")
+        phonenum = input("What is your phone number (xxx-xxx-xxxx)? ")
+        dob = input("What is your date of birth (yyyy-mm-dd)? ")
+        registerMember(email, password, fullname, phonenum, dob)
+        print("Registered, go back to login\n")
+        continue
     elif choice == "2":
-        fname = input("What is the first name of the student? ")
-        lname = input("What is the last name of the student? ")
-        email = input("What is the email of the student? ")
-        enrollment = input("What is the enrollment date of the student? ")
-        addStudent(fname, lname, email, enrollment)
+        email = input("What is your email? ")
+        password = input("What is your password? ")
+        if(not loginMember(email, password)):
+            print("Incorrect email or password, try again\n")
+            continue
     elif choice == "3":
         id = input("What is the student's id? ")
         email = input("What is the new email that you'd like to change to? ")
@@ -76,3 +144,4 @@ while(choice != "0"):
         break
     else:
         print("Input a valid choice")
+

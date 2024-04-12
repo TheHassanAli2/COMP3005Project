@@ -1,0 +1,1 @@
+select * from fitnessgoal where member_id=1;
