@@ -425,17 +425,17 @@ def maintainEquipment():
                         WHERE equipment_id = {e_id};
                         ''')
 
-def changeGroupClassSchedules(id):
+def changeGroupClassSchedules():
     print(f"\nGroup Classes:")
     cursor.execute('''SELECT *
                 FROM groupclass;''')
     printPretty(cursor, '`')
 
     gc_id = input("What is the group class id of the group class you'd like to reschedule? ")
-    cursor.execute(f''' SELECT trainer_id, date, booking_id, capacity
+    cursor.execute(f''' SELECT trainer_id, date, booking_id, capacity, start_time
                             FROM GroupClass
                             WHERE class_id = {gc_id};''')
-    trainer_id, date, booking_id, capacity = cursor.fetchall()[0]
+    trainer_id, date, booking_id, capacity, old_time = cursor.fetchall()[0]
 
     print(f"Possible timeslots for that group class and trainer:\n")
     cursor.execute(f''' SELECT *
@@ -444,7 +444,18 @@ def changeGroupClassSchedules(id):
                         AND date = '{date}'
                         AND booked = 0::BIT;''')
     printPretty(cursor, '`')
+
+
+
     ts_id = input("What is the time slot id you'd like to reschedule the group class to? ")
+
+    cursor.execute(f''' UPDATE AvailableTimeslot 
+                    SET booked = 0::BIT
+                    WHERE trainer_id = {trainer_id} 
+                    AND date = '{date}' 
+                    AND start_time = '{old_time}' ''')
+    
+    
 
     print(f"Possible rooms:\n")
     cursor.execute(f'''SELECT *
@@ -453,31 +464,29 @@ def changeGroupClassSchedules(id):
     printPretty(cursor, '`')
     room_id = input("What is the room id you'd like to reschedule the group class to? ")
     
-    try:
-        cursor.execute(f'''
-            UPDATE RoomBooking
-            SET room_id = {room_id}, start_time = (
-                SELECT start_time
+    cursor.execute(f'''SELECT start_time
                 FROM AvailableTimeslot
-                WHERE tslot_id = {ts_id}
-            ), booking_id = {booking_id}
-            WHERE room_id = {room_id}
-            AND tslot_id = {ts_id}
-            AND DATE(start_time) = '{date}'
-            AND booking_id = {booking_id}
-            AND NOT EXISTS (
-                SELECT 1
-                FROM RoomBooking
-                WHERE room_id = {room_id}
-                AND start_time = (
-                    SELECT start_time
-                    FROM AvailableTimeslot
-                    WHERE tslot_id = {ts_id}
-                )
-            );
-        ''')
-    except:
-        pass
+                WHERE tslot_id = {ts_id};''')
+    start_time = cursor.fetchall()[0][0].strftime("%H:%M:%S")
+    print(start_time, booking_id)
+    cursor.execute(f'''
+        UPDATE RoomBooking
+        SET room_id = {room_id}, start_time = '{date} {start_time}'
+        WHERE booking_id = {booking_id};
+    ''')
+
+    cursor.execute(f'''
+        UPDATE groupclass
+        SET start_time = '{date} {start_time}'
+        WHERE booking_id = {booking_id};
+    ''')
+
+    cursor.execute(f''' UPDATE AvailableTimeslot 
+                    SET booked = 1::BIT
+                    WHERE trainer_id = {trainer_id} 
+                    AND date = '{date} '
+                    AND start_time = '{start_time}' ''')
+
     # cursor.execute(f''' DELETE FROM RoomBooking
     #                     WHERE booking_id = {booking_id};
     #                     ''' )

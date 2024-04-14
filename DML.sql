@@ -33,14 +33,14 @@ INSERT INTO Statistics (member_id, calories_burned, avg_heart_rate, max_heart_ra
 (2, 450, 110, 140, 1600, '2024-04-09');
 -- Inserting sample data into the AvailableTimeslot table
 INSERT INTO AvailableTimeslot (trainer_id, booked, date, start_time) VALUES
-(1,1::BIT,'2024-04-13','08:00:00'),
-(1,0::BIT,'2024-04-13','09:00:00'),
-(1,0::BIT,'2024-04-13','15:00:00'),
-(1,0::BIT,'2024-04-13','16:00:00'),
-(2,0::BIT,'2024-04-13','08:00:00'),
-(2,0::BIT,'2024-04-13','09:00:00'),
-(2,0::BIT,'2024-04-13','15:00:00'),
-(2,0::BIT,'2024-04-13','16:00:00');
+(1,'1','2024-04-13','08:00:00')
+(1,'0','2024-04-13','16:00:00')
+(2,'0','2024-04-13','08:00:00')
+(2,'0','2024-04-13','15:00:00')
+(1,'0','2024-04-13','15:00:00')
+(1,'1','2024-04-13','09:00:00')
+(2,'0','2024-04-13','16:00:00')
+(2,'1','2024-04-13','09:00:00')
 
 
 -- Inserting sample data into the Equipment table
@@ -61,14 +61,13 @@ INSERT INTO Room (room_name, capacity) VALUES
 
 -- Inserting sample data into the RoomBooking table
 INSERT INTO RoomBooking (room_id, start_time, purpose) VALUES
-(1, '2024-04-13 15:00:00', 'Yoga Class'),
-(3,'2024-04-13 08:00:00','Personal Trainer session for Sanjeev Easparan and Hassan Ali'),
-(2, '2024-04-13 16:00:00', 'Pilates Class');
-
+(2,'2024-04-13 16:00:00','Pilates Class')
+(1,'2024-04-13 09:00:00','Yoga Class')
+(2,'2024-04-13 09:00:00','Personal Trainer session for Sanjeev Easparan and Hassan Ali')
 -- Inserting sample data into the GroupClass table
 INSERT INTO GroupClass (trainer_id, class_name, date, start_time, capacity, remaining_capacity, booking_id) VALUES
-(1, 'Yoga Class', '2024-04-13', '15:00:00', 20, 1, 1),
-(2, 'Pilates Class', '2024-04-13', '16:00:00', 15, 2, 2);
+(1,1,'Yoga Class','2024-04-13','09:00:00',20,1,1)
+(2,2,'Pilates Class','2024-04-13','09:00:00',15,2,2)
 
 -- Inserting sample data into the GroupRegistration table
 INSERT INTO GroupRegistration (class_id, member_id) VALUES
