@@ -31,7 +31,7 @@ CREATE TABLE Metrics (
     metric_id SERIAL PRIMARY KEY,
     member_id INT REFERENCES Member(member_id),
     weight FLOAT NOT NULL,
-    height FLOAT NOT NULL,
+    height INT NOT NULL,
     bmi FLOAT NOT NULL
 );
 
@@ -41,7 +41,8 @@ CREATE TABLE FitnessGoal (
     target_weight FLOAT,
     target_time DATE NOT NULL,
     other_goals TEXT,
-    status VARCHAR(255) DEFAULT 'incomplete'
+    date_completed DATE NULL,
+    completed BIT DEFAULT 0::BIT
 );
 
 CREATE TABLE Statistics (
@@ -50,16 +51,16 @@ CREATE TABLE Statistics (
     calories_burned FLOAT,
     avg_heart_rate FLOAT,
     max_heart_rate FLOAT,
-    hydration_levels FLOAT,
+    ml_water_consumed INT,
     date_measured DATE
 );
 
 CREATE TABLE AvailableTimeslot (
     tslot_id SERIAL PRIMARY KEY,
     trainer_id INT REFERENCES Trainer(trainer_id),
+    booked bit default 0::BIT,
     date DATE,
-    start_time TIME,
-    end_time TIME
+    start_time TIME
 );
 
 CREATE TABLE Equipment (
@@ -87,11 +88,8 @@ CREATE TABLE Room (
 CREATE TABLE RoomBooking (
     booking_id SERIAL PRIMARY KEY,
     room_id INT REFERENCES Room(room_id),
-    booking_admin_id INT REFERENCES Admin(admin_id) NULL,
     start_time TIMESTAMP,
-    end_time TIMESTAMP,
-	purpose TEXT, 
-    status VARCHAR(255) DEFAULT 'unconfirmed'
+	purpose TEXT
 );
 
 CREATE TABLE GroupClass (
@@ -100,7 +98,6 @@ CREATE TABLE GroupClass (
     class_name VARCHAR(255),
     date DATE,
     start_time TIME,
-    end_time TIME,
     capacity INT,
     remaining_capacity INT,
     booking_id INT REFERENCES RoomBooking(booking_id)
@@ -118,8 +115,6 @@ CREATE TABLE PersonalTrainingSession (
     trainer_id INT REFERENCES Trainer(trainer_id),
     date DATE,
     start_time TIME,
-    end_time TIME,
-    status VARCHAR(255),
     booking_id INT REFERENCES RoomBooking(booking_id)
 );
 
@@ -127,9 +122,8 @@ CREATE TABLE Billing (
     billing_id SERIAL PRIMARY KEY,
     member_id INT REFERENCES Member(member_id),
     admin_id INT REFERENCES Admin(admin_id) NULL,
-    date DATE,
     amount FLOAT,
 	billing_date DATE,
-	payment_date DATE,
-    payment_status VARCHAR(255) DEFAULT 'unpaid'
+	payment_date DATE NULL,
+    purpose TEXT
 );
